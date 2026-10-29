@@ -1,0 +1,88 @@
+@font-face{font-family:Inter;src:url('/assets/inter-latin-700.ttf') format('truetype');font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:'Roboto Mono';src:url('/assets/roboto-mono-latin-400.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+@font-face{font-family:'Roboto Mono';src:url('/assets/roboto-mono-latin-700.ttf') format('truetype');font-style:normal;font-weight:700;font-display:swap}
+:root{--mina-paper:#fafaf7;--mina-ink:#23292b;--mina-muted:#697375;--mina-coral:#ec368d;--mina-teal:#63e6e6;--mina-steel:#63e6e6;--mina-rose:#f5f1f3;--mina-sky:#edf7f6;--mina-peach:#f2f3ef;--mina-line:#dde4e2;--mina-white:#fff;color:var(--mina-ink);background:var(--mina-paper);font-family:'Roboto Mono',monospace;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}h1,h2,h3,p{margin:0;font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:none}button{font:inherit}img{display:block}main{width:100%}a:focus-visible{outline:3px solid var(--mina-coral);outline-offset:6px}.skip-link{position:fixed;top:8px;left:8px;padding:12px;background:white;z-index:100;transform:translateY(-200%)}.skip-link:focus{transform:none}.navigation{height:126px;padding:40px 48px;display:flex;align-items:center;justify-content:space-between;background:var(--mina-paper);position:relative;z-index:4}.wordmark{font:700 30px/1.5 Inter,sans-serif;letter-spacing:-1.2px;color:var(--mina-coral)}.navigation nav{display:flex;gap:14px;align-items:center;font-size:16px}.navigation nav a{padding:11px 13px;text-decoration:underline;line-height:24px}.navigation a[aria-current]{background:var(--mina-coral);color:white;text-decoration:none}.navigation a:hover{color:var(--mina-coral)}.navigation a[aria-current]:hover{color:white;background:#d22479}.project-card{transition:box-shadow .18s,translate .18s}.project-card:hover{translate:0 -4px;box-shadow:0 10px 24px #23292b12}.artwork-stage{position:absolute;left:0;top:0;transform-origin:left top}.paper-edge{will-change:translate}.not-found{padding:64px}.not-found a{color:var(--mina-coral);text-decoration:underline}
+@media(min-width:801px) and (max-width:1200px){main>section,main>div{padding-left:clamp(24px,4.44vw,64px)!important;padding-right:clamp(24px,4.44vw,64px)!important}main [data-design='Context columns'],main [data-design='Portrait and story']{gap:32px!important}.hero-composition [data-design='Who I am']{width:45%!important}.hero-composition h1{font-size:clamp(28px,3.2vw,46px)!important}.textured-heading{max-width:100%}.textured-heading>p,.textured-heading>div:first-child{font-size:clamp(64px,8.33vw,120px)!important}.hero-composition .textured-heading span{font-size:clamp(70px,11.11vw,160px)!important}main [data-design='About hero / greeting beside personal photo']{height:410px!important}main [data-design='Personal introduction'] p{font-size:17px!important}}
+@media(max-width:800px){.navigation{height:72px;padding:18px 20px}.wordmark{font-size:23px;letter-spacing:-.9px}.navigation nav{gap:0;font-size:12px}.navigation nav a{padding:7px;line-height:18px}main>section,main>div{max-width:100%}main [data-design='Photo prints / offset right column']{padding-top:0!important}.contact-footer a{min-height:28px}.project-card:hover{translate:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.paper-edge{translate:0!important}}
+/* Preserve the supplied paper and print textures at their design scale. */
+[data-design='AI-generated halftone texture']{background-size:100% 100%!important}
+[data-design='White caption paper'],[data-design='Subtle paper relief']{mask-size:100% 100%!important}
+[data-design='AI-generated halftone texture']{background-size:100% auto!important}
+.contact-footer [data-design='Rectangle']{background-size:600px auto!important}
+body[data-page='about'] .navigation{background:rgba(250,250,247,.9)}
+/* Clip the original halftone to live text so texture follows responsive letterforms. */
+.textured-heading > [data-design='Generated grain / varied halftone print']{display:none!important}
+.print-type{background-color:var(--letter-ink);background-image:url('/assets/halftone-original.png');background-blend-mode:screen;background-size:1300px auto;background-position:left top;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+@media(max-width:800px){.print-type{background-size:600px auto}}
+@media(min-width:801px) and (max-width:1200px){.textured-heading>h1{font-size:clamp(60px,8.33vw,120px)!important}.hero-composition [data-design='Who I am'] h2{font-size:clamp(28px,3.2vw,46px)!important}body[data-page='about'] [data-design='Photo / IMG_8519 2']{top:-100px!important}}
+.print-type{background-image:linear-gradient(var(--letter-ink),var(--letter-ink)),url('/assets/halftone-original.png')}
+/* Scroll movement stays inside photographic crops; typography and layouts stay fixed. */
+.scroll-photo{transform:translateY(var(--photo-drift,0px)) scale(1.045);transform-origin:center;}
+.scroll-letter{translate:0 var(--letter-drift,0px);}
+@media(prefers-reduced-motion:reduce){.scroll-photo{transform:none!important}.scroll-letter{translate:0!important}}
+
+.paper-cover{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--mina-paper);pointer-events:none;}
+
+/* Allow the Work heading to rise into place without clipping its letterforms. */
+[data-design="MY WORK heading"]{overflow:visible!important;}
+/* Let the introduction span the same left-hand area as the name above it. */
+@media(min-width:801px){
+ .hero-composition [data-design='Who I am']{width:55%!important;}
+ .hero-composition [data-design='Who I am'] > h2,
+ .hero-composition [data-design='Who I am'] > p{width:100%!important;}
+}
+/* Keep the hero balanced before switching to the stacked phone composition. */
+@media(min-width:801px){
+ .hero-composition [data-design='Who I am']{top:308px!important;}
+}
+@media(min-width:801px) and (max-width:1200px){
+ .hero-composition{height:clamp(560px,45.84vw,660px)!important;}
+}
+/* On narrow screens, the copy follows the photo in flow rather than sitting at a fixed y. */
+@media(max-width:800px){
+ body[data-page='home'] .home-intro{padding:24px!important;}
+ body[data-page='home'] .hero-composition{
+  --hero-name-size:clamp(52px,15.4vw,104px);
+  display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;
+  height:auto!important;width:100%!important;max-width:640px;margin-inline:auto;overflow:visible!important;
+ }
+ body[data-page='home'] .hero-composition > [data-design='Hero photo / boat view']{
+  grid-area:1 / 1;position:relative!important;left:auto!important;top:auto!important;
+  width:100%!important;margin-top:calc(var(--hero-name-size)*.77);align-self:start;
+ }
+ body[data-page='home'] .hero-composition > .textured-heading{
+  grid-area:1 / 1;position:relative!important;left:auto!important;top:auto!important;
+  width:100%!important;height:auto!important;align-self:start;z-index:1;pointer-events:none;
+ }
+ body[data-page='home'] .hero-composition .textured-heading h1,
+ body[data-page='home'] .hero-composition .textured-heading span{font-size:var(--hero-name-size)!important;}
+ body[data-page='home'] .hero-composition > [data-design='Who I am']{
+  grid-area:2 / 1;position:relative!important;left:auto!important;top:auto!important;
+  width:100%!important;margin-top:24px;overflow:visible!important;
+ }
+ body[data-page='home'] .hero-composition [data-design='Who I am'] > h2,
+ body[data-page='home'] .hero-composition [data-design='Who I am'] > p{width:100%!important;}
+ body[data-page='home'] .hero-composition [data-design='Who I am'] h2{font-size:28px!important;}
+}
+
+/* One consistent narrow-screen layout, readable copy, and comfortable navigation targets. */
+@media(max-width:800px){
+ .navigation{height:80px;padding:14px 20px;}
+ .navigation nav a{min-height:44px;display:flex;align-items:center;padding:10px 8px;}
+ .wordmark{min-height:44px;display:flex;align-items:center;}
+ main .body-copy{font-size:16px!important;line-height:1.65!important;}
+ body[data-page='about'] [data-design='About Mina']{padding:40px 24px 48px!important;gap:36px!important;}
+ body[data-page='about'] [data-design='Portrait and story']{gap:32px!important;}
+ body[data-page='about'] [data-design='Personal introduction']{gap:28px!important;}
+ body[data-page='about'] [data-design='Personal introduction'] a{min-height:44px;display:flex;align-items:center;}
+ body[data-page='about'] [data-design='Personal photo journal']{padding:48px 24px!important;gap:40px!important;}
+ body[data-page='about'] [data-design^='Photo journal row']{gap:48px!important;}
+ body[data-page='about'] [data-design^='Personal /']{gap:16px!important;}
+}
+@media(max-width:800px){
+ body[data-page='about'] [data-design='Photo / IMG_8519 1']{max-width:480px;align-self:center;}
+ body[data-page='about'] [data-design='Personal introduction']{max-width:65ch;align-self:center;}
+ body[data-page='about'] .textured-heading h1{font-size:clamp(48px,8vw,64px)!important;}
+}

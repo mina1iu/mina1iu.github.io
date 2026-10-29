@@ -1,0 +1,7 @@
+import fs from 'node:fs';import {execFileSync} from 'node:child_process';
+const originals=new Set();
+for(const file of fs.readdirSync('reference').filter(f=>f.endsWith('.txt'))){for(const match of fs.readFileSync('reference/'+file,'utf8').matchAll(/const img(?:Photo\w*|HeroPhoto\w*|OriginalPhoto\w*|PrintImg\w*|ImgImg\w*) = "https:\/\/www.figma.com\/api\/mcp\/asset\/([^\"]+)"/g))if(match[1].endsWith('.png'))originals.add(match[1]);}
+const map={};for(const original of originals){const source='public/assets/'+original;const metadata=execFileSync('sips',['-g','pixelWidth','-g','pixelHeight',source],{encoding:'utf8'});const width=Number(metadata.match(/pixelWidth: (\d+)/)[1]);const height=Number(metadata.match(/pixelHeight: (\d+)/)[1]);const candidates=[];
+ for(const limit of [640,1280,1920]){if(limit>Math.max(width,height))continue;const dest=original.replace('.png',`-${limit}.jpg`);if(!fs.existsSync('public/assets/'+dest))execFileSync('sips',['-s','format','jpeg','-s','formatOptions','86','-Z',String(limit),source,'--out','public/assets/'+dest],{stdio:'ignore'});candidates.push(`/assets/${dest} ${Math.round(width*limit/Math.max(width,height))}w`);}
+ if(candidates.length)map['/assets/'+original]={srcset:candidates.join(', '),width,height};
+}fs.writeFileSync('src/responsive-images.json',JSON.stringify(map));console.log('Responsive photographic sources prepared:',Object.keys(map).length);

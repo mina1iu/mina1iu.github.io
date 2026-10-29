@@ -1,0 +1,12 @@
+import {chromium} from 'playwright';import assert from 'node:assert/strict';
+const b=await chromium.launch({channel:'chrome'});const p=await b.newPage({viewport:{width:390,height:844}});
+for(const width of [390,1440]){
+ await p.setViewportSize({width,height:900});await p.goto('http://localhost:5173');await p.evaluate(()=>document.fonts.ready);
+ const cards=p.locator('.project-card');assert.equal(await cards.count(),4);
+ const targets=['/work/roomie','/work/alloydb','/work/robotic-knitting','/work/human-ai'];for(const target of targets){await p.locator(`.project-card[href="${target}"]`).click();await p.waitForURL('**'+target);assert.equal(await p.locator('h1').count(),1);await p.reload();await p.locator('nav[aria-label="Main navigation"] a').filter({hasText:'Work'}).click();await p.waitForURL('**/#work');assert.ok(await p.locator('#work').isVisible());}
+ await p.locator('.navigation a[href="/about"]').click();await p.waitForURL('**/about');assert.equal(await p.locator('h1').count(),1);assert.equal(await p.locator('.navigation [aria-current]').textContent(),'About');assert.equal(await p.locator('a[href="mailto:mtl79@cornell.edu"]').count(),1);assert.equal(await p.locator('a[href="https://www.linkedin.com/in/minatliu/"]').count(),1);await p.locator('.navigation a[href="/resume"]').click();await p.waitForURL('**/resume');assert.equal(await p.locator('h1').count(),1);await p.locator('.wordmark').click();await p.waitForURL('http://localhost:5173/');
+ await p.keyboard.press('Tab');await p.locator('.project-card').first().focus();assert.equal(await p.locator('.project-card').first().evaluate(e=>getComputedStyle(e).outlineStyle),'solid');
+}
+await p.emulateMedia({reducedMotion:'reduce'});await p.goto('http://localhost:5173');await p.evaluate(()=>scrollTo(0,500));await p.waitForTimeout(100);assert.equal(await p.locator('.paper-edge').evaluate(e=>getComputedStyle(e).translate),'0px');
+await p.emulateMedia({reducedMotion:'no-preference'});await p.evaluate(()=>scrollTo(0,700));await p.waitForTimeout(100);const forward=await p.locator('.paper-edge').evaluate(e=>parseFloat(getComputedStyle(e).translate));await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(100);const back=await p.locator('.paper-edge').evaluate(e=>parseFloat(getComputedStyle(e).translate));assert.ok(forward>back);
+await b.close();console.log('Whole-card links, direct routes and refresh, Work anchor, About/Resume, contact links, keyboard focus, and reversible/reduced-motion paper behavior passed on desktop and mobile.');
