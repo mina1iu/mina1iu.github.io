@@ -66,7 +66,14 @@ function render(n,parentW,context={}){
  }else{
   for(const child of n.c)el.append(render(child,actualW-pad*2,{...context,name:name||context.name,hero:context.hero||/Hero/.test(name)}));
  }
- if(name.startsWith('Shared / Footer')){s.width='100%';el.classList.add('contact-footer');}
+ if(name.startsWith('Shared / Footer')){
+  s.width='100%';el.classList.add('contact-footer');
+  for(const link of el.querySelectorAll('a')){
+   link.target='_blank';
+   link.rel=[...new Set([...link.rel.split(/\s+/).filter(Boolean),'noopener','noreferrer'])].join(' ');
+   if(!link.href.startsWith('mailto:'))link.setAttribute('aria-label',`${link.getAttribute('aria-label')||link.textContent.trim()} (opens in a new tab)`);
+  }
+ }
  if(name==='Hero / name overlapping photograph')el.classList.add('hero-composition');
  if(name.startsWith('Left edge /'))el.classList.add('paper-edge');
  if(name==='Introduction / clear name')el.classList.add('home-intro');
