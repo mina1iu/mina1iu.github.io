@@ -1,7 +1,7 @@
 // Imports inspected Figma layout metadata; content is canonicalized from desktop.
 import {parse} from '@babel/parser';
 import fs from 'node:fs';
-const pairs=[['home','21-2','21-239'],['roomie','22-33','22-177'],['alloydb','22-320','22-426'],['robotic-knitting','22-531','22-662'],['human-ai','22-792','22-915'],['about','23-348','23-479'],['resume','23-609','23-682']];
+const pairs=[['home','21-2','21-239'],['roomie','22-33','22-177'],['alloydb','22-320','22-426'],['robotic-knitting','22-531','22-662'],['human-ai','22-792','22-915'],['about','23-348','23-479']];
 function read(id){
  const source=fs.readFileSync(`reference/${id}.txt`,'utf8').split('SUPER CRITICAL:')[0];
  const ast=parse(source,{sourceType:'module',plugins:['jsx']}); const vars={};

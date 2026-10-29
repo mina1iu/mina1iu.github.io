@@ -102,3 +102,7 @@ body{background:var(--mina-paper);overflow-x:clip;}
 /* Continue each section's own color through the empty margins of the centered frame. */
 .page-band{isolation:isolate;overflow:visible!important;}
 .page-band::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);background:inherit;pointer-events:none;z-index:-1;}
+/* Accessible brand mark uses the same pink as the original footer link. */
+.linkedin-link{display:inline-flex!important;align-items:center;justify-content:flex-start;width:44px!important;min-width:44px;min-height:44px;line-height:1!important;color:var(--mina-coral)!important;text-decoration:none;}
+.linkedin-icon{display:block;width:26px;height:26px;background:currentColor;mask:url('/assets/linkedin.svg') center / contain no-repeat;-webkit-mask:url('/assets/linkedin.svg') center / contain no-repeat;}
+.linkedin-link:hover{opacity:.8;}

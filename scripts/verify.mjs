@@ -1,6 +1,6 @@
 import {chromium} from 'playwright';import fs from 'node:fs';
 const b=await chromium.launch({channel:'chrome',headless:true});
-const routes=['/','/work/roomie','/work/alloydb','/work/robotic-knitting','/work/human-ai','/about','/resume'];const results=[];fs.mkdirSync('reference/browser',{recursive:true});
+const routes=['/','/work/roomie','/work/alloydb','/work/robotic-knitting','/work/human-ai','/about'];const results=[];fs.mkdirSync('reference/browser',{recursive:true});
 for(const width of [1440,1024,768,390,360])for(const route of routes){const p=await b.newPage({viewport:{width,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto((process.env.BASE_URL||'http://localhost:5173')+route,{waitUntil:'domcontentloaded'});await p.evaluate(()=>document.fonts.ready);
 // Visit the whole page to test lazy media before a full-page capture.
 await p.evaluate(async()=>{for(const i of document.images){i.loading='eager';}await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});await p.waitForTimeout(100);

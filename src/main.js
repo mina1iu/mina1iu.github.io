@@ -5,7 +5,8 @@ import './image-assets.css';
 import {styles} from './styles.js';
 import {setupScrollMotion} from './scroll-motion.js';
 import './style.css';
-const routes={home:'/',roomie:'/work/roomie',alloydb:'/work/alloydb','robotic-knitting':'/work/robotic-knitting','human-ai':'/work/human-ai',about:'/about',resume:'/resume'};
+const RESUME_URL='/Mina-Liu-Resume.pdf';
+const routes={home:'/',roomie:'/work/roomie',alloydb:'/work/alloydb','robotic-knitting':'/work/robotic-knitting','human-ai':'/work/human-ai',about:'/about'};
 const page=Object.keys(routes).find(k=>routes[k]===location.pathname.replace(/\/$/,'')||k==='home'&&location.pathname==='/')||'404';
 document.body.dataset.page=page;
 const media=matchMedia('(max-width: 800px)');
@@ -14,8 +15,8 @@ const app=document.querySelector('#app');let observer;
 const num=v=>v?.endsWith?.('px')?parseFloat(v):null;
 const textOf=n=>typeof n==='string'?n:n.text?(content[n.text]??n.fallback):n.c.map(textOf).join(' ');
 function assign(el,style){for(const [key,value]of Object.entries(style))el.style.setProperty(key,value);}
-function href(text,name){if(/Explore my work|All work|Back to work/.test(text))return '/#work';if(/résumé|resume|CV/i.test(text))return '/resume';if(/LinkedIn/i.test(text))return 'https://www.linkedin.com/in/minatliu/';if(/@cornell/.test(text))return 'mailto:mtl79@cornell.edu';if(/prior|paper|published/i.test(text))return 'https://doi.org/10.1145/3746059.3747759';if(/Next|Roomie/.test(text))return '/work/roomie';return '/#work';}
-function navigation(mobile){const nav=document.createElement('header');nav.className='navigation';nav.innerHTML=`<a class="wordmark" href="/" aria-label="Mina Liu home">MINA</a><nav aria-label="Main navigation">${[['Work','/#work',page!=='about'&&page!=='resume'],['About','/about',page==='about'],['Resume','/resume',page==='resume']].map(([label,url,active])=>`<a href="${url}" ${active?'aria-current="page"':''}>${label}</a>`).join('')}</nav>`;return nav;}
+function href(text,name){if(/Explore my work|All work|Back to work/.test(text))return '/#work';if(/résumé|resume|CV/i.test(text))return RESUME_URL;if(/LinkedIn/i.test(text))return 'https://www.linkedin.com/in/minatliu/';if(/@cornell/.test(text))return 'mailto:mtl79@cornell.edu';if(/prior|paper|published/i.test(text))return 'https://doi.org/10.1145/3746059.3747759';if(/Next|Roomie/.test(text))return '/work/roomie';return '/#work';}
+function navigation(mobile){const nav=document.createElement('header');nav.className='navigation';nav.innerHTML=`<a class="wordmark" href="/" aria-label="Mina Liu home">MINA</a><nav aria-label="Main navigation">${[['Work','/#work',page!=='about'],['About','/about',page==='about'],['Resume',RESUME_URL,false]].map(([label,url,active])=>`<a href="${url}" ${active?'aria-current="page"':''} ${label==='Resume'?'target="_blank" rel="noopener" aria-label="Resume (PDF, opens in a new tab)"':''}>${label}</a>`).join('')}</nav>`;return nav;}
 const decorative=/texture|grain|mask|paper|Rectangle|Dynamic Island|photographic registration/i;
 function render(n,parentW,context={}){
  if(typeof n==='string')return document.createTextNode(n);
@@ -37,7 +38,11 @@ function render(n,parentW,context={}){
  if(tag==='h1'||tag==='h2'){el.classList.add('heading');context.hasHeading=true;}
  if(name==='MY WORK'){el.id='work';el.setAttribute('aria-label','My work');}
  if(card){el.href=routes[card];el.classList.add('project-card');}
- else if(tag==='a'){el.href=href(text,name);if(/LinkedIn/.test(text))el.rel='me';}
+ else if(tag==='a'){
+  el.href=href(text,name);
+  if(/LinkedIn/.test(text)){el.rel='me';el.classList.add('linkedin-link');el.setAttribute('aria-label','Mina Liu on LinkedIn');el.title='LinkedIn';}
+  if(el.getAttribute('href')===RESUME_URL){el.target='_blank';el.rel='noopener';el.setAttribute('aria-label','Resume (PDF, opens in a new tab)');}
+ }
  if(tag==='img'){
   const image=responsiveImages[a.src];
   if(image){el.dataset.responsiveImage=a.src;el.width=image.width;el.height=image.height;}else el.src=a.src;
@@ -67,6 +72,7 @@ function render(n,parentW,context={}){
  if(name==='Introduction / clear name')el.classList.add('home-intro');
  if(name.startsWith('Textured type /'))el.classList.add('textured-heading');
  if(name==='Textured title / Resume')el.dataset.texturedTitle='';
+ if(el.classList.contains('linkedin-link')){const icon=document.createElement('span');icon.className='linkedin-icon';icon.setAttribute('aria-hidden','true');el.replaceChildren(icon);}
  assign(el,s);return el;
 }
 function altText(name,page){
@@ -101,7 +107,7 @@ function setup(){
   if(stage)stage.style.transform=`scale(${el.clientWidth/Number(stage.dataset.width)})`;
   observer.observe(el);
  });
- document.title=page==='home'?'Mina Liu — Software + Product':`${{roomie:'Roomie',alloydb:'Google / AlloyDB','robotic-knitting':'Robotic 3D Knitting','human-ai':'Human–AI Research',about:'About',resume:'Resume'}[page]} — Mina Liu`;
+ document.title=page==='home'?'Mina Liu — Software + Product':`${{roomie:'Roomie',alloydb:'Google / AlloyDB','robotic-knitting':'Robotic 3D Knitting','human-ai':'Human–AI Research',about:'About'}[page]} — Mina Liu`;
  // One canonical desktop copy source also supplies mobile layouts.
  if(location.hash)requestAnimationFrame(()=>document.querySelector(location.hash)?.scrollIntoView());
  normalizeHeadings();
