@@ -8,11 +8,13 @@
     "build": "vite build && node scripts/build-pages.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "check": "node scripts/check.mjs",
-    "test": "node scripts/verify.mjs"
+    "test": "node scripts/verify.mjs",
+    "images": "node scripts/prepare-images.mjs"
   },
   "devDependencies": {
-    "vite": "^7.0.0",
     "@babel/parser": "^7.28.0",
-    "playwright": "^1.55.0"
+    "playwright": "^1.55.0",
+    "sharp": "^0.35.5",
+    "vite": "^7.0.0"
   }
 }

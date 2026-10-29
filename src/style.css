@@ -14,10 +14,10 @@
 body[data-page='about'] .navigation{background:rgba(250,250,247,.9)}
 /* Clip the original halftone to live text so texture follows responsive letterforms. */
 .textured-heading > [data-design='Generated grain / varied halftone print']{display:none!important}
-.print-type{background-color:var(--letter-ink);background-image:url('/assets/halftone-original.png');background-blend-mode:screen;background-size:1300px auto;background-position:left top;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.print-type{background-color:var(--letter-ink);background-image:var(--halftone-texture);background-blend-mode:screen;background-size:1300px auto;background-position:left top;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 @media(max-width:800px){.print-type{background-size:600px auto}}
 @media(min-width:801px) and (max-width:1200px){.textured-heading>h1{font-size:clamp(60px,8.33vw,120px)!important}.hero-composition [data-design='Who I am'] h2{font-size:clamp(28px,3.2vw,46px)!important}body[data-page='about'] [data-design='Photo / IMG_8519 2']{top:-100px!important}}
-.print-type{background-image:linear-gradient(var(--letter-ink),var(--letter-ink)),url('/assets/halftone-original.png')}
+.print-type{background-image:linear-gradient(var(--letter-ink),var(--letter-ink)),var(--halftone-texture)}
 /* Scroll movement stays inside photographic crops; typography and layouts stay fixed. */
 .scroll-photo{transform:translateY(var(--photo-drift,0px)) scale(1.045);transform-origin:center;}
 .scroll-letter{translate:0 var(--letter-drift,0px);}
@@ -88,7 +88,7 @@ body[data-page='about'] .navigation{background:rgba(250,250,247,.9)}
 }
 /* Center every page inside a comfortable desktop frame on wide monitors. */
 :root{--site-max-width:1200px;}
-body{background:var(--mina-peach);}
+body{background:var(--mina-paper);overflow-x:clip;}
 #app{width:100%;max-width:var(--site-max-width);margin-inline:auto;min-height:100svh;background:var(--mina-paper);position:relative;isolation:isolate;}
 
 /* Use the compact desktop proportions inside the narrower site frame. */
@@ -98,3 +98,7 @@ body{background:var(--mina-peach);}
  .hero-composition [data-design='Who I am'] h2{font-size:38px!important;}
  body[data-page='about'] .textured-heading h1{font-size:100px!important;}
 }
+
+/* Continue each section's own color through the empty margins of the centered frame. */
+.page-band{isolation:isolate;overflow:visible!important;}
+.page-band::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);background:inherit;pointer-events:none;z-index:-1;}

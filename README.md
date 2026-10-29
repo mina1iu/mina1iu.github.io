@@ -22,7 +22,9 @@ Pushing to `main` runs `.github/workflows/deploy-pages.yml`, verifies local asse
 - `src/content.json`: canonical copy, shared by desktop and mobile.
 - `src/layouts.json`: inspected Figma layout metadata and asset placement, with separate responsive compositions. No complete-frame screenshots are used as content.
 - `src/main.js`: shared navigation, linked project cards, media renderer, semantic headings, footer rendering, and paper scroll enhancement.
-- `src/style.css`: design tokens, local fonts, responsive adaptations, texture clipping, and interaction states.
+- `src/style.css`: design tokens, local fonts, a centered 1200px frame with full-width section colors, responsive adaptations, texture clipping, and interaction states.
+- `src/image-assets.json`: deduplicated WebP sources with responsive widths. Photos use quality 84; app screens, graphs, masks, and grain use lossless WebP. Sizes are selected from the actual rendered crop width and device pixel ratio.
+- `npm run images`: regenerate optimized variants from the original design assets. Originals stay in the repository; the production build omits the unused PNG/JPEG sources.
 - `src/scroll-motion.js`: card and section entrances, subtle photo parallax, and drifting footer letters. Effects clean up on responsive changes and reduced-motion preference changes; keyboard focus immediately completes entrances.
 - `src/scroll-video.js`: scroll-linked seeking with reduced-motion and loading/error fallbacks; ready to bind when the original videos are supplied.
 - `scripts/import-design.mjs`: reproducible import of the saved design context in `reference/`. Ordinary copy edits belong in `src/content.json`; re-importing overwrites those edits.

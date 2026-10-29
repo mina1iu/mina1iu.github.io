@@ -1,7 +1,44 @@
-import fs from 'node:fs';import {execFileSync} from 'node:child_process';
-const originals=new Set();
-for(const file of fs.readdirSync('reference').filter(f=>f.endsWith('.txt'))){for(const match of fs.readFileSync('reference/'+file,'utf8').matchAll(/const img(?:Photo\w*|HeroPhoto\w*|OriginalPhoto\w*|PrintImg\w*|ImgImg\w*) = "https:\/\/www.figma.com\/api\/mcp\/asset\/([^\"]+)"/g))if(match[1].endsWith('.png'))originals.add(match[1]);}
-const map={};for(const original of originals){const source='public/assets/'+original;const metadata=execFileSync('sips',['-g','pixelWidth','-g','pixelHeight',source],{encoding:'utf8'});const width=Number(metadata.match(/pixelWidth: (\d+)/)[1]);const height=Number(metadata.match(/pixelHeight: (\d+)/)[1]);const candidates=[];
- for(const limit of [640,1280,1920]){if(limit>Math.max(width,height))continue;const dest=original.replace('.png',`-${limit}.jpg`);if(!fs.existsSync('public/assets/'+dest))execFileSync('sips',['-s','format','jpeg','-s','formatOptions','86','-Z',String(limit),source,'--out','public/assets/'+dest],{stdio:'ignore'});candidates.push(`/assets/${dest} ${Math.round(width*limit/Math.max(width,height))}w`);}
- if(candidates.length)map['/assets/'+original]={srcset:candidates.join(', '),width,height};
-}fs.writeFileSync('src/responsive-images.json',JSON.stringify(map));console.log('Responsive photographic sources prepared:',Object.keys(map).length);
+// Generate local, reproducible WebP sources. Originals remain available for future edits.
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import sharp from 'sharp';
+const layouts=JSON.parse(fs.readFileSync('src/layouts.json','utf8'));
+const sources=new Map();
+function collect(node,name=''){
+ if(!node||typeof node!=='object')return;
+ name=node.a?.['data-name']||name;
+ if(node.a?.src&&/\.(png|jpe?g)$/.test(node.a.src))sources.set(node.a.src,/photo|print \/|IMG_/i.test(name)&&!/grain|paper|mask/i.test(name)?'photo':'graphic');
+ for(const value of Object.values(node.a?.style||{}))if(typeof value==='string')for(const match of value.matchAll(/\/assets\/[\w./-]+\.(?:png|jpe?g)/g))if(!sources.has(match[0]))sources.set(match[0],'graphic');
+ for(const child of node.c||[])collect(child,name);
+}
+for(const page of Object.values(layouts))for(const tree of Object.values(page))collect(tree);
+sources.set('/assets/halftone-original.png','graphic');
+const output='public/assets/optimized';fs.mkdirSync(output,{recursive:true});
+sharp.cache(false);
+const manifest={},completed=new Map();
+let originalBytes=0,optimizedNativeBytes=0;
+for(const [source,type]of sources){
+ const file='public'+source;
+ const hash=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').slice(0,16);
+ const cacheKey=hash+':'+type;
+ if(completed.has(cacheKey)){manifest[source]=completed.get(cacheKey);continue;}
+ const metadata=await sharp(file).metadata();
+ const maxWidth=Math.min(metadata.width,type==='photo'?1920:2560);
+ const widths=[320,480,640,960,1280,1600,1920,2560].filter(w=>w<maxWidth);widths.push(maxWidth);
+ const variants=[];
+ for(const width of widths){
+  const filename=`${hash}-${type}-${width}.webp`;const dest=path.join(output,filename);
+  if(!fs.existsSync(dest))await sharp(file).rotate().resize({width,withoutEnlargement:true}).webp(type==='photo'?{quality:84,alphaQuality:100,effort:6}:{lossless:true,effort:6}).toFile(dest);
+  variants.push({src:'/assets/optimized/'+filename,width,bytes:fs.statSync(dest).size});
+ }
+ const largest=variants.at(-1);
+ const asset={src:largest.src,srcset:variants.map(v=>`${v.src} ${v.width}w`).join(', '),width:metadata.width,height:metadata.height,type,variants};
+ manifest[source]=asset;completed.set(cacheKey,asset);
+ originalBytes+=fs.statSync(file).size;optimizedNativeBytes+=largest.bytes;
+}
+fs.writeFileSync('scripts/image-assets.audit.json',JSON.stringify(manifest,null,2)+'\n');
+const runtime=Object.fromEntries(Object.entries(manifest).map(([source,{variants,...image}])=>[source,image]));
+fs.writeFileSync('src/image-assets.json',JSON.stringify(runtime,null,2)+'\n');
+fs.writeFileSync('src/image-assets.css',`:root{--halftone-texture:url('${manifest['/assets/halftone-original.png'].src}');}\n`);
+console.log(JSON.stringify({sources:sources.size,uniqueImages:completed.size,originalBytes,optimizedNativeBytes},null,2));

@@ -1,6 +1,7 @@
 import layouts from './layouts.json';
 import content from './content.json';
-import responsiveImages from './responsive-images.json';
+import responsiveImages from './image-assets.json';
+import './image-assets.css';
 import {styles} from './styles.js';
 import {setupScrollMotion} from './scroll-motion.js';
 import './style.css';
@@ -38,10 +39,13 @@ function render(n,parentW,context={}){
  if(card){el.href=routes[card];el.classList.add('project-card');}
  else if(tag==='a'){el.href=href(text,name);if(/LinkedIn/.test(text))el.rel='me';}
  if(tag==='img'){
-  el.src=a.src;if(responsiveImages[a.src]){el.srcset=responsiveImages[a.src].srcset;el.sizes=media.matches?'90vw':'(max-width: 1100px) 45vw, 700px';}el.alt='';el.decoding='async';el.loading=context.hero?'eager':'lazy';
+  const image=responsiveImages[a.src];
+  if(image){el.dataset.responsiveImage=a.src;el.width=image.width;el.height=image.height;}else el.src=a.src;
+  if(context.hero&&image?.type==='photo')el.fetchPriority='high';
+  el.alt='';el.decoding='async';el.loading=context.hero?'eager':'lazy';
   if(!decorative.test(context.name||'')){el.alt=altText(context.name||'',page);}
  }
- if(a.style)for(const [key,value]of Object.entries(a.style))s[key.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())]=value;
+ if(a.style)for(const [key,value]of Object.entries(a.style))s[key.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())]=typeof value==='string'?value.replace(/\/assets\/[\w./-]+\.(?:png|jpe?g)/g,source=>responsiveImages[source]?.src||source):value;
  if(a['aria-hidden'])el.setAttribute('aria-hidden','true');
  if(!context.fixed){
   if(w!==null){if(s.position==='absolute')s.width=`${w/parentW*100}%`;else{s.width=w>=parentW-.5?'100%':`${w/parentW*100}%`;s['flex-shrink']='1';}}
@@ -90,8 +94,13 @@ function setup(){
  const nodes=[...root.childNodes];app.replaceChildren();
  for(const node of nodes){if(node.nodeName==='HEADER')app.append(node);else if(node.nodeName==='FOOTER'){if(main.childNodes.length&&!main.isConnected)app.append(main);app.append(node);}else main.append(node);}
  if(!main.isConnected)app.append(main);
- observer=new ResizeObserver(entries=>{for(const {target,contentRect}of entries){const stage=target.querySelector(':scope > .artwork-stage');if(stage)stage.style.transform=`scale(${contentRect.width/Number(stage.dataset.width)})`;}});
- document.querySelectorAll('.artwork').forEach(el=>observer.observe(el));
+ for(const band of [...main.children,...app.querySelectorAll(':scope > header, :scope > footer')])band.classList.add('page-band');
+ observer=new ResizeObserver(entries=>{for(const {target,contentRect}of entries){const stage=target.querySelector(':scope > .artwork-stage');if(stage)stage.style.transform=`scale(${contentRect.width/Number(stage.dataset.width)})`;}scheduleImageSizes();});
+ document.querySelectorAll('.artwork').forEach(el=>{
+  const stage=el.querySelector(':scope > .artwork-stage');
+  if(stage)stage.style.transform=`scale(${el.clientWidth/Number(stage.dataset.width)})`;
+  observer.observe(el);
+ });
  document.title=page==='home'?'Mina Liu — Software + Product':`${{roomie:'Roomie',alloydb:'Google / AlloyDB','robotic-knitting':'Robotic 3D Knitting','human-ai':'Human–AI Research',about:'About',resume:'Resume'}[page]} — Mina Liu`;
  // One canonical desktop copy source also supplies mobile layouts.
  if(location.hash)requestAnimationFrame(()=>document.querySelector(location.hash)?.scrollIntoView());
@@ -103,6 +112,22 @@ function setup(){
   }
  }
  motion();
+ syncImageSizes();
+}
+// Sizes reflect the final crop and the 1200px frame, not an estimate of viewport width.
+let imageFrame=0;
+function syncImageSizes(){
+ for(const image of document.querySelectorAll('img[data-responsive-image]')){
+  const asset=responsiveImages[image.dataset.responsiveImage];
+  const width=Math.ceil(image.getBoundingClientRect().width);
+  if(!width)continue;
+  const sizes=`${width}px`;
+  if(image.sizes!==sizes)image.sizes=sizes;
+  if(!image.srcset){image.srcset=asset.srcset;image.src=asset.src;}
+ }
+}
+function scheduleImageSizes(){
+ cancelAnimationFrame(imageFrame);imageFrame=requestAnimationFrame(syncImageSizes);
 }
 let scrollHandler, stopScrollEffects;
 function motion(){
